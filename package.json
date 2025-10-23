@@ -1,0 +1,31 @@
+{
+  "name": "rss-service-demo-minimal",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node dist/app.js",
+    "dev": "nodemon --watch src --ext ts --exec ts-node src/app.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.12.2",
+    "cheerio": "^1.1.2",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "rss": "^1.2.2"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.9.36",
+    "@types/cheerio": "^0.22.35",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.9.1",
+    "@types/rss": "^0.0.32",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
