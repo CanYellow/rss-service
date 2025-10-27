@@ -75,6 +75,11 @@ export class XinWenLianBoSource extends BaseRssSource {
 
   public async generateFeed(): Promise<RSS> {
     const feed = this.createBaseRssFeed();
+    
+    // 新增：获取北京时区的当前日期字符串 "YYYY-MM-DD"
+    const beijingDateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Shanghai' });
+    // 新增：创建一个与页面解析逻辑（19点）一致的回退日期对象
+    const fallbackBeijingDate = new Date(`${beijingDateStr}T19:00:00+08:00`);
 
     try {
       // 1. 抓取新闻联播主页 HTML
@@ -102,7 +107,7 @@ export class XinWenLianBoSource extends BaseRssSource {
         }
       }
       if (!listPublishDate) {
-        listPublishDate = new Date(); // 如果无法解析，则回退到当前时间
+        listPublishDate = fallbackBeijingDate; // 使用我们定义的北京时区回退日期
         console.warn('[XinWenLianBo] 警告：无法从主页提取列表发布日期，使用当前日期作为回退。');
       }
 
@@ -141,8 +146,8 @@ export class XinWenLianBoSource extends BaseRssSource {
           url: item.link,
           guid: item.link, // 使用链接作为唯一标识符
           // === 修正点 2 ===
-          // 确保 date 属性始终是 Date 对象，即使它是 undefined 也提供一个当前时间作为回退
-          date: item.date || new Date(), 
+          // 确保 date 属性始终是 Date 对象，使用我们定义的北京时区回退日期
+          date: item.date || fallbackBeijingDate, 
           categories: ['新闻联播', 'CCTV', '中国新闻'],
           custom_elements: fullContent ? [{ 'content:encoded': { _cdata: fullContent } }] : [],
         });
@@ -151,12 +156,13 @@ export class XinWenLianBoSource extends BaseRssSource {
     } catch (error: any) {
       console.error(`[XinWenLianBo] 生成RSS时发生严重错误:`, error.message);
       // 在出错时，返回一个包含错误信息的 RSS feed，而不是完全失败
+      // 在出错时，返回一个包含错误信息的 RSS feed，而不是完全失败
       feed.item({
-        title: `抓取CCTV新闻联播RSS失败 - ${new Date().toISOString()}`,
+        title: `抓取CCTV新闻联播RSS失败 - ${fallbackBeijingDate.toISOString()}`,
         description: `无法获取CCTV新闻联播内容。请检查网络连接或网站结构是否改变。错误信息: ${error.message}`,
         url: this.link,
         guid: `error-${Date.now()}`,
-        date: new Date(),
+        date: fallbackBeijingDate,
       });
     }
 

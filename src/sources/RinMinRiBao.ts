@@ -38,7 +38,15 @@ export class RenMinRiBaoSource extends BaseRssSource {
 
   public async generateFeed(): Promise<RSS> {
     const feed = this.createBaseRssFeed();
-    const today = new Date();
+    
+    // 核心修改：获取当前北京时间 (UTC+8) 的日期
+    // 1. 使用 toLocaleString 和 timeZone: 'Asia/Shanghai' 获取北京时区的日期字符串。
+    // 2. 'en-CA' locale 格式可以稳定输出 'YYYY-MM-DD' 格式，便于后续处理。
+    const beijingDateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Shanghai' });
+    // 3. 基于这个日期字符串创建一个新的 Date 对象。
+    //    这个对象代表了北京当天零点的时刻，避免了时区问题。
+    const today = new Date(beijingDateStr);
+    
     const { yearMonth, day, fullDate } = getFormattedDate(today);
     const mainPageUrl = `${this.paperBaseUrl}/${yearMonth}/${day}/`;
 
